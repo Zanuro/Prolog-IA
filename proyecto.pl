@@ -1,6 +1,6 @@
 
 
-:- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/1, defensa/1.
+:- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/2, defensa/2.
 :- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)).
 
 pos_actual(arbol_de_la_vida).
@@ -8,12 +8,11 @@ pos_actual(arbol_de_la_vida).
 score(old_value,new_value).
 score(0,0).
 
-nivel_vida(guerrero,X).
-nivel_vida(troll,X).
-ataque(guerrero,X).
-defensa(guerrero,X).
 alive(troll).
 alive(espiritu).
+ataque(guerrero,100).
+defensa(guerrero,100).
+nivel_vida(guerrero,100).
 
 pos_obj(troll,cueva).
 pos_obj(llave,casa_abandonada).
@@ -76,98 +75,139 @@ drops(X,Y):-
  drops(_):-
       write('No ha dropeado nada'),nl.
       
-score(X,Y):-
-
 atacar :-
         pos_actual(cueva),
         pos_obj(cuchillo_peq,guerrero),
         alive(troll),
-        ataque(guerrero,X):- ataque(guerrero,X+10),
+        ataque1(guerrero,X),
+        nivel_vida1(guerrero,X),
+        defensa1(guerrero,X),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
         write('+10 Ataque'),
         write('Pero el monstruo tambien te ha herido!'),
-        nivel_vida(guerrero,X):-nivel_vida(guerrero,X-20),
-        defensa(guerrero,X):- defensa(guerrero,X-20),
-        write('Tu defensa y tu nivel de vida ha bajado!'),'
+        write('Tu defensa y tu nivel de vida ha bajado!'),
         write('-20 DEF -20 VIDA'),nl,!.
 
+ataque1(guerrero,X):- Y is X-20,ataque(guerrero,Y).
+nivel_vida1(guerrero,X):- Y is X-20,nivel_vida1(guerrero,Y).
+defensa1(guerrero,X):- Y is X-20,defensa(guerrero,Y).
 
 atacar :-
         pos_actual(cueva),
         pos_obj(hacha,guerrero),
         alive(troll),
-        ataque(guerrero,X):- ataque(guerrero,X+30),
+        ataque2(guerrero,X),
+        nivel_vida2(guerrero,X),
+        defensa2(guerrero,X),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
         write('+30 Ataque'),
         write('Pero el monstruo tambien te ha herido!'),
-        nivel_vida(guerrero,X):-nivel_vida(guerrero,X-10),
-        defensa(guerrero,X):- defensa(guerrero,X-10),
-        write('Tu defensa y tu nivel de vida ha bajado!'),'
+        write('Tu defensa y tu nivel de vida ha bajado!'),
         write('-10 DEF -10 VIDA'),nl,!.
-        
+
+ataque2(guerrero,X):- Y is X-30,ataque2(guerrero,Y).
+nivel_vida2(guerrero,X):- Y is X-10,nivel_vida2(guerrero,Y).
+defensa2(guerrero,X):- Y is X-10,defensa2(guerrero,Y).
+
 atacar :-
         pos_actual(cueva),
         pos_obj(espada,guerrero),
         alive(troll),
-        ataque(guerrero,X):- ataque(guerrero,X+50),
+        ataque3(guerrero,X),
+        nivel_vida3(guerrero,X),
+        defensa3(guerrero,X),
         write('Has logrado matar al legendario troll.'),nl,
         write('Ha logrado quitarte un poco de vida pero'),nl,
         write('te has vuelto mas fuerte!'),nl,
         write('+50 Ataque'),
-        nivel_vida(guerrero,X):- nivel_vida(guerrero,X-10),
-        defensa(guerrero,X):- defensa(guerrero,X-10),
-        write('Tu defensa y tu nivel de vida ha bajado!'),'
+        write('Tu defensa y tu nivel de vida ha bajado!'),
         write('-5 DEF -10 VIDA'),nl,!.
+
+ataque3(guerrero,X):- Y is X+50,ataque3(guerrero,Y).
+nivel_vida3(guerrero,X):- Y is X-10,nivel_vida3(guerrero,Y).
+defensa3(guerrero,X):- Y is X-5,defensa3(guerrero,Y).
 
 atacar :-
         pos_actual(casa_abandonada),
         pos_obj(cuchillo_peq,pers),
         retract(alive(espiritu)),
-        ataque(guerrero,X):- ataque(guerrero,X+30),
+        ataque4(guerrero,X),
+        nivel_vida4(guerrero,X),
+        defensa4(guerrero,X),
         write('Lograste matar al espiritu malvado de la casa'),nl,
         write('Conseguiste una mejora en tu ataque: +30 Ataque'),nl,
         write('El espiritu ha logrado quitarte un poco de vida y'),nl,
         write('tu defensa ha bajado.'),nl,
         write('-10 DEF -20 VIDA'),nl,
-        nivel_vida(guerrero,X):- nivel_vida(guerrero,X-20),
-        defensa(guerrero,X):- defensa(guerrero,X-10),
         write('El espiritu tambien ha dropeado algo:.....'),nl,
         drops(espiritu,hacha),
-        ver_objeto(casa_abandonada),
-        coger(llave),nl,!.
-        
+        ver_objeto(casa_abandonada),nl,!.
+
+ataque4(guerrero,X):- Y is X+30,ataque4(guerrero,Y).
+nivel_vida4(guerrero,X):- Y is X-20,nivel_vida4(guerrero,Y).
+defensa4(guerrero,X):- Y is X-10,defensa4(guerrero,Y).
+
 atacar :-
         pos_actual(casa_abandonada),
         pos_obj(espada,pers),
         retract(alive(espiritu)),
-        ataque(guerrero,X):- ataque(guerrero,X+50),
+        ataque5(guerrero,X),
+        nivel_vida5(guerrero,X),
+        defensa5(guerrero,X),
         write('Lograste matar al espiritu malvado de la casa'),nl,
         write('Conseguiste una mejora en tu ataque: +50 Ataque'),nl,
         write('El espiritu ha logrado quitarte un poco de vida y'),nl,
         write('tu defensa ha bajado.'),nl,
         write('-5 DEF -10 VIDA'),nl,
-        nivel_vida(guerrero,X):- nivel_vida(guerrero,X-10),
-        defensa(guerrero,X):- defensa(guerrero,X-5),
         write('El espiritu tambien ha dropeado algo:.....'),nl,
         drops(espiritu,hacha),
-        ver_objeto(casa_abandonada),
-        coger(llave),nl,!.
+        ver_objeto(casa_abandonada),nl,!.
+
+ataque5(guerrero,X):- Y is X+50,ataque5(guerrero,Y).
+nivel_vida5(guerrero,X):- Y is X-10,nivel_vida5(guerrero,Y).
+defensa5(guerrero,X):- Y is X-5,defensa5(guerrero,Y).
 
 huir :-
         pos_actual(cueva),
         alive(troll),
-        ataque(guerrero,X-20),
+        ataque6(guerrero,X),
+        defensa6(guerrero,X),
+        nivel_vida6(guerrero,X),
         write('Intentas huir del troll'),nl,
-        write('Sin embargo al intentar huir se ha disminuido tu ataque..'),nl,
-        write('Perdiste 20 puntos de ataque'),nl,!.
+        write('Sin embargo al intentar huir se ha disminuido tu ataque,defensa y vida..'),nl,
+        write('Perdiste 20 puntos de ataque'),nl,
+        write('Perdiste 10 puntos de defensa'),nl,
+        write('Perdiste 15 puntos de vida'),nl,!.
+        
+ataque6(guerrero,X):- Y is X-20,ataque6(guerrero,Y).
+nivel_vida6(guerrero,X):- Y is X-15,nivel_vida6(guerrero,Y).
+defensa6(guerrero,X):- Y is X-10,defensa6(guerrero,Y).
+        
+huir :-
+        pos_actual(casa_abandonada),
+        alive(espiritu),
+        ataque7(guerrero,X),
+        defensa7(guerrero,X),
+        nivel_vida7(guerrero,X),
+        write('Intentas huir del espiritu'),nl,
+        write('Sin embargo al intentar huir se ha disminuido tu ataque,defensa y vida..'),nl,
+        write('Perdiste 10 puntos de ataque'),nl,
+        write('Perdiste 5 puntos de defensa'),nl,
+        write('Perdiste 10 puntos de vida'),nl,!.
+
+ataque7(guerrero,X):- Y is X-10,ataque7(guerrero,Y).
+nivel_vida7(guerrero,X):- Y is X-10,nivel_vida7(guerrero,Y).
+defensa7(guerrero,X):- Y is X-5,defensa7(guerrero,Y).
 
 atacar :-
-       write('No hay ningun enemigo alrededor para atacar').
+       write('No hay ningun enemigo alrededor para atacar'),nl.
 
+huir :-
+     write('No hay ningun enemigo del que huir'),nl.
 
 norte :- move(norte).
 sur :- move(sur).
@@ -183,6 +223,7 @@ start_game :-
         nivel_vida(guerrero,100),
         comandos,
         ver_entorno.
+        
 comandos :-
     nl,
     write('Comandos disponibles:'),nl,
@@ -192,6 +233,7 @@ comandos :-
     write('atacar --> para atacar '),nl,
     write('look --> para mirar en tu alrededor'),nl,
     write('huir --> para huir'),nl,
+    write('coger(X) --> para coger el objeto'),nl,
     write('finish --> para salir del juego'),nl.
 
 move(X):-
