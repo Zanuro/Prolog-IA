@@ -1,7 +1,7 @@
 
 
 :- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/2, defensa/2, num_obj/1.
-:- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)).
+:- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)), retractall(ataque(_,_)), retractall(defensa(_,_)).
 
 % puedes coger objetos sin matar a los monstruos. arreglar.
 % swap armas para tener una sola arma en un momento dado.
@@ -18,6 +18,7 @@ alive(espiritu).
 num_obj(1).
 inventario(X,4).
 
+
 ataque(guerrero,100).
 defensa(guerrero,100).
 
@@ -29,7 +30,6 @@ pos_obj(espada,monte_pico).
 pos_obj(espiritu,casa_abandonada).
 pos_obj(pocion_vida,pueblo).
 pos_obj(cuchillo_peq,guerrero).
-pos_obj(hacha,casa_abandonada).
 pos_obj(antorcha,molino_viento).
 %el hacha es dropeado por el espiritu de la casa abandonada.
 
@@ -66,7 +66,77 @@ camino(palacio,este,camara_del_tesoro).
 camino(camara_del_tesoro,norte,cofre):- pos_obj(llave,guerrero).
 camino(camara_del_tesoro,norte,cofre):- write('El cofre esta cerrado'),nl,fail.
 
+comprobar_coger:-
+      pos_actual(X),
+      pos_obj(Y,X),
+      Y = espiritu,
+      alive(Y),
+      write('Mata al monstruo antes de poder coger los objetos'),nl.
+      
+swap_armas(X):-
+     X = hacha,
+     pos_obj(cuchillo_peq,guerrero),
+     retract(pos_obj(cuchillo_peq,guerrero)),
+     pos_actual(Z),
+     assert(pos_obj(cuchillo_peq,Z)),
+     retract(num_obj(F)),
+     A is F,
+     B is A-1,
+     assert(num_obj(B)),
+     write('Se ha intercambiado cuchillo peq con '),write(X),nl,!;
+     X = cuchillo_peq,
+     pos_obj(hacha,guerrero),
+     retract(pos_obj(hacha,guerrero)),
+     pos_actual(Z),
+     assert(pos_obj(cuchillo_peq,Z)),
+     retract(num_obj(F)),
+     A is F,
+     B is A-1,
+     assert(num_obj(B)),
+     write('Se ha intercambiado hacha con '),write(X),nl,!;
+     X = hacha,
+     pos_obj(espada,guerrero),
+     retract(pos_obj(espada,guerrero)),
+     pos_actual(Z),
+     assert(pos_obj(cuchillo_peq,Z)),
+     retract(num_obj(F)),
+     A is F,
+     B is A-1,
+     assert(num_obj(B)),
+     write('Se ha intercambiado espada con '),write(X),nl,!;
+     X = espada,
+     pos_obj(hacha,guerrero),
+     retract(pos_obj(hacha,guerrero)),
+     pos_actual(Z),
+     assert(pos_obj(cuchillo_peq,Z)),
+     retract(num_obj(F)),
+     A is F,
+     B is A-1,
+     assert(num_obj(B)),
+     write('Se ha intercambiado hacha con '),write(X),nl,!;
+     X = cuchillo_peq,
+     pos_obj(espada,guerrero),
+     retract(pos_obj(espada,guerrero)),
+     pos_actual(Z),
+     assert(pos_obj(cuchillo_peq,Z)),
+     retract(num_obj(F)),
+     A is F,
+     B is A-1,
+     assert(num_obj(B)),
+     write('Se ha intercambiado espada con '),write(X),nl,!;
+     X = espada,
+     pos_obj(cuchillo_peq,guerrero),
+     retract(pos_obj(cuchillo_peq,guerrero)),
+     pos_actual(Z),
+     assert(pos_obj(cuchillo_peq,Z)),
+     retract(num_obj(F)),
+     A is F,
+     B is A-1,
+     assert(num_obj(B)),
+     write('Se ha intercambiado cuchillo_peq con '),write(X),nl,!.
+
 coger(X):-
+     swap_armas(X);
      retract(num_obj(F)),
      A is F,
      inventario(A,4),
@@ -75,11 +145,11 @@ coger(X):-
      pos_obj(X,Y),
      retract(pos_obj(X,Y)),
      assert(pos_obj(X,guerrero)),
-     write('Has cogido '),write(X),nl,
+     write('Has cogido '),write(X),nl,nl,
      G is F+1,assert(num_obj(G)),
      G < 4,
      H is 4-G,
-     write('Te quedan '),write(H),write(' espacios'),write(' en el inventario.'),nl,!;
+     write('Te quedan '),write(H),write(' espacios'),write(' en el inventario.'),nl,nl,!;
      retract(num_obj(F)),A is F,
      inventario(A,4),
      A=4,
@@ -89,10 +159,27 @@ coger(X):-
 
  coger(_):-
      write('No hay nada que coger!'),nl.
+
+drop(X):-
+     retract(num_obj(F)),
+     G is F,
+     G > 0,
+     pos_obj(X,guerrero),
+     pos_actual(Y),
+     retract(pos_obj(X,guerrero)),
+     assert(pos_obj(X,Y)),
+     write('Se ha dropeado '),write(X),nl,
+     H is G-1,
+     K is 4-H,
+     write('Te quedan '),write(K),write(' espacios'),write(' en el inventario.'),nl,nl,
+     assert(num_obj(H)),nl,!;
+     write('No hay nada que dropear!'),nl.
+drop(_):-
+     write('No hay nada que dropear!'),nl.
      
 drops(X,Y):-
-      pos_obj(Y,Z),
       pos_actual(Z),
+      assert(pos_obj(Y,Z)),
       write(X),write(' ha dropeado '),write(Y),nl,!.
 
  drops(_):-
@@ -103,7 +190,7 @@ atacar :-
         pos_obj(cuchillo_peq,guerrero),
         alive(troll),
         retract(ataque(guerrero,X)),
-        Z is X-20,
+        Z is X+20,
         assert(ataque(guerrero,Z)),
         retract(defensa(guerrero,X)),
         Y is X-20,
@@ -114,12 +201,10 @@ atacar :-
         retract(nivel_vida(troll,X)),
         W is X-40,
         assert(nivel_vida(troll,W)),
-        retract(alive(troll)),
-        retract(pos_obj(troll,cueva)),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
-        write('+10 Ataque'),
+        write('+20 Ataque'),
         write('Pero el monstruo tambien te ha herido!'),
         write('Tu defensa y tu nivel de vida ha bajado!'),
         write('-20 DEF -20 VIDA'),
@@ -141,8 +226,6 @@ atacar :-
         retract(nivel_vida(troll,X)),
         W is X-70,
         assert(nivel_vida(troll,W)),
-        retract(alive(troll)),
-        retract(pos_obj(troll,cueva)),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
@@ -151,7 +234,6 @@ atacar :-
         write('Tu defensa y tu nivel de vida ha bajado!'),
         write('-10 DEF -10 VIDA'),
         ver_objeto(cueva),nl,!.
-
 atacar :-
         pos_actual(cueva),
         pos_obj(espada,guerrero),
@@ -279,7 +361,8 @@ pocion :-
      write('Se ha utilizado la pocion de vida'),nl,
      retract(nivel_vida(guerrero,X)),
      Y is X+50,
-     assert(nivel_vida(guerrero,Y)),nl,!.
+     assert(nivel_vida(guerrero,Y)),nl,
+     retract(pos_obj(pocion_vida,guerrero)),!.
 
 pocion :-
        write('No lleva encima una pocion de vida'),nl.
@@ -295,11 +378,6 @@ def :-
 vida :-
     nivel_vida(guerrero,X),
     write('Su nivel de vida es: '),write(X),nl.
-    
-swap_armas :-
-     pos_obj(cuchillo_peq,guerrero),coger(hacha);coger(espada),
-     retract(pos_obj(cuchillo_peq,guerrero)),
-     assert(pos_obj(hacha,guerrero));assert(pos_obj(espada,guerrero)),!.
 
 inv :-
      write('Tienes en el inventario: '),nl,
@@ -333,9 +411,10 @@ ver_objeto(X):-
 ver_objeto(_):- write('No hay ningun objeto interesante en esta vecinidad'),nl.
 
 end_game :-
-        nivel_vida(guerrero,0),
+
+        assert(nivel_vida(guerrero,0)),
         pos_actual(X),
-        write('Has muerto en la '),write(X),nl,!.
+        write('Has muerto en '),write(X),nl,!.
         
 comandos :-
     nl,
@@ -349,7 +428,8 @@ comandos :-
     write('atq --> para ver nivel de ataque'),nl,
     write('def --> para ver nivel de defensa'),nl,
     write('vida --> para ver nivel de vida'),nl,
-    write('coger(X) --> para coger el objeto'),nl,
+    write('coger(X) --> para coger el objeto X'),nl,
+    write('drop(X) --> para dropear el item X'),nl,
     write('pocion --> para utilizar pocion vida'),nl,
     write('inv --> ver inventario'),nl,
     write('end_game --> para salir del juego'),nl.
