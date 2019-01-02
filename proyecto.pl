@@ -3,20 +3,24 @@
 :- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/2, defensa/2.
 :- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)).
 
-pos_actual(arbol_de_la_vida).
 
 score(old_value,new_value).
 score(0,0).
 
+pos_actual(arbol_de_la_vida).
+nivel_vida(guerrero,100).
+nivel_vida(troll,100).
+nivel_vida(espiritu,100).
 alive(troll).
 alive(espiritu).
+
 ataque(guerrero,100).
 defensa(guerrero,100).
-nivel_vida(guerrero,100).
 
 pos_obj(troll,cueva).
 pos_obj(llave,casa_abandonada).
 pos_obj(cofre,camara_del_tesoro).
+pos_obj(anillo_legendario,cofre).
 pos_obj(espada,monte_pico).
 pos_obj(espiritu,casa_abandonada).
 pos_obj(pocion_vida,pueblo).
@@ -82,17 +86,20 @@ atacar :-
         ataque1(guerrero,X),
         nivel_vida1(guerrero,X),
         defensa1(guerrero,X),
+        vida_troll1(troll,X),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
         write('+10 Ataque'),
         write('Pero el monstruo tambien te ha herido!'),
         write('Tu defensa y tu nivel de vida ha bajado!'),
-        write('-20 DEF -20 VIDA'),nl,!.
+        write('-20 DEF -20 VIDA'),
+        ver_objeto(cueva),nl,!.
 
 ataque1(guerrero,X):- Y is X-20,ataque(guerrero,Y).
-nivel_vida1(guerrero,X):- Y is X-20,nivel_vida1(guerrero,Y).
+nivel_vida1(guerrero,X):- Y is X-20,nivel_vida(guerrero,Y).
 defensa1(guerrero,X):- Y is X-20,defensa(guerrero,Y).
+vida_troll1(troll,X):- Y is X-40,nivel_vida(troll,Y).
 
 atacar :-
         pos_actual(cueva),
@@ -101,17 +108,20 @@ atacar :-
         ataque2(guerrero,X),
         nivel_vida2(guerrero,X),
         defensa2(guerrero,X),
+        vida_troll2(troll,X),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
         write('+30 Ataque'),
         write('Pero el monstruo tambien te ha herido!'),
         write('Tu defensa y tu nivel de vida ha bajado!'),
-        write('-10 DEF -10 VIDA'),nl,!.
+        write('-10 DEF -10 VIDA'),
+        ver_objeto(cueva),nl,!.
 
-ataque2(guerrero,X):- Y is X-30,ataque2(guerrero,Y).
-nivel_vida2(guerrero,X):- Y is X-10,nivel_vida2(guerrero,Y).
-defensa2(guerrero,X):- Y is X-10,defensa2(guerrero,Y).
+ataque2(guerrero,X):- Y is X-30,ataque(guerrero,Y).
+nivel_vida2(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
+defensa2(guerrero,X):- Y is X-10,defensa(guerrero,Y).
+vida_troll2(troll,X):- Y is X-70,nivel_vida(troll,Y).
 
 atacar :-
         pos_actual(cueva),
@@ -120,24 +130,28 @@ atacar :-
         ataque3(guerrero,X),
         nivel_vida3(guerrero,X),
         defensa3(guerrero,X),
+        vida_troll3(troll,X),
         write('Has logrado matar al legendario troll.'),nl,
         write('Ha logrado quitarte un poco de vida pero'),nl,
         write('te has vuelto mas fuerte!'),nl,
         write('+50 Ataque'),
         write('Tu defensa y tu nivel de vida ha bajado!'),
-        write('-5 DEF -10 VIDA'),nl,!.
+        write('-5 DEF -10 VIDA'),
+        ver_objeto(cueva),nl,!.
 
-ataque3(guerrero,X):- Y is X+50,ataque3(guerrero,Y).
-nivel_vida3(guerrero,X):- Y is X-10,nivel_vida3(guerrero,Y).
-defensa3(guerrero,X):- Y is X-5,defensa3(guerrero,Y).
+ataque3(guerrero,X):- Y is X+50,ataque(guerrero,Y).
+nivel_vida3(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
+defensa3(guerrero,X):- Y is X-5,defensa(guerrero,Y).
+vida_troll3(troll,X):- nivel_vida(troll,0).
 
 atacar :-
         pos_actual(casa_abandonada),
-        pos_obj(cuchillo_peq,pers),
+        pos_obj(cuchillo_peq,guerrero),
+        ataque4(guerrero,30),
+        nivel_vida4(guerrero,-20),
+        defensa4(guerrero,-10),
+        vida_espiritu(espiritu,-100),
         retract(alive(espiritu)),
-        ataque4(guerrero,X),
-        nivel_vida4(guerrero,X),
-        defensa4(guerrero,X),
         write('Lograste matar al espiritu malvado de la casa'),nl,
         write('Conseguiste una mejora en tu ataque: +30 Ataque'),nl,
         write('El espiritu ha logrado quitarte un poco de vida y'),nl,
@@ -147,17 +161,19 @@ atacar :-
         drops(espiritu,hacha),
         ver_objeto(casa_abandonada),nl,!.
 
-ataque4(guerrero,X):- Y is X+30,ataque4(guerrero,Y).
-nivel_vida4(guerrero,X):- Y is X-20,nivel_vida4(guerrero,Y).
-defensa4(guerrero,X):- Y is X-10,defensa4(guerrero,Y).
+ataque4(guerrero,30):- ataque(guerrero,X),Z is X+30, ataque(guerrero,Z).
+nivel_vida4(guerrero,-20):- nivel_vida(guerrero,X),Z is X-20, nivel_vida(guerrero,Z).
+defensa4(guerrero,-10):- defensa(guerrero,X),Z is X-10, defensa(guerrero,Z).
+vida_espiritu(espiritu,-100):- nivel_vida(espiritu,X),Z is X-100, nivel_vida(espiritu,Z).
 
 atacar :-
         pos_actual(casa_abandonada),
-        pos_obj(espada,pers),
+        pos_obj(espada,guerrero),
         retract(alive(espiritu)),
         ataque5(guerrero,X),
         nivel_vida5(guerrero,X),
         defensa5(guerrero,X),
+        vida_espiritu(espiritu,X),
         write('Lograste matar al espiritu malvado de la casa'),nl,
         write('Conseguiste una mejora en tu ataque: +50 Ataque'),nl,
         write('El espiritu ha logrado quitarte un poco de vida y'),nl,
@@ -167,9 +183,9 @@ atacar :-
         drops(espiritu,hacha),
         ver_objeto(casa_abandonada),nl,!.
 
-ataque5(guerrero,X):- Y is X+50,ataque5(guerrero,Y).
-nivel_vida5(guerrero,X):- Y is X-10,nivel_vida5(guerrero,Y).
-defensa5(guerrero,X):- Y is X-5,defensa5(guerrero,Y).
+ataque5(guerrero,X):- Y is X+50,ataque(guerrero,Y).
+nivel_vida5(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
+defensa5(guerrero,X):- Y is X-5,defensa(guerrero,Y).
 
 huir :-
         pos_actual(cueva),
@@ -183,9 +199,9 @@ huir :-
         write('Perdiste 10 puntos de defensa'),nl,
         write('Perdiste 15 puntos de vida'),nl,!.
         
-ataque6(guerrero,X):- Y is X-20,ataque6(guerrero,Y).
-nivel_vida6(guerrero,X):- Y is X-15,nivel_vida6(guerrero,Y).
-defensa6(guerrero,X):- Y is X-10,defensa6(guerrero,Y).
+ataque6(guerrero,X):- Y is X-20,ataque(guerrero,Y).
+nivel_vida6(guerrero,X):- Y is X-15,nivel_vida(guerrero,Y).
+defensa6(guerrero,X):- Y is X-10,defensa(guerrero,Y).
         
 huir :-
         pos_actual(casa_abandonada),
@@ -199,42 +215,21 @@ huir :-
         write('Perdiste 5 puntos de defensa'),nl,
         write('Perdiste 10 puntos de vida'),nl,!.
 
-ataque7(guerrero,X):- Y is X-10,ataque7(guerrero,Y).
-nivel_vida7(guerrero,X):- Y is X-10,nivel_vida7(guerrero,Y).
-defensa7(guerrero,X):- Y is X-5,defensa7(guerrero,Y).
+ataque7(guerrero,X):- Y is X-10,ataque(guerrero,Y).
+nivel_vida7(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
+defensa7(guerrero,X):- Y is X-5,defensa(guerrero,Y).
 
 atacar :-
        write('No hay ningun enemigo alrededor para atacar'),nl.
 
 huir :-
      write('No hay ningun enemigo del que huir'),nl.
+     
 
 norte :- move(norte).
 sur :- move(sur).
 este :- move(este).
 oeste :- move(oeste).
-
-end_game :-
-        nivel_vida(guerrero,0),
-        pos_actual(X),
-        write('Has muerto en la '),write(X),nl,!.
-
-start_game :-
-        nivel_vida(guerrero,100),
-        comandos,
-        ver_entorno.
-        
-comandos :-
-    nl,
-    write('Comandos disponibles:'),nl,
-    write('start_game -->comenzar'),nl,
-    write('comandos -->ver comandos del juego'),nl,
-    write('norte | sur | este | oeste --> para moverse'),nl,
-    write('atacar --> para atacar '),nl,
-    write('look --> para mirar en tu alrededor'),nl,
-    write('huir --> para huir'),nl,
-    write('coger(X) --> para coger el objeto'),nl,
-    write('finish --> para salir del juego'),nl.
 
 move(X):-
     pos_actual(Y),
@@ -253,14 +248,36 @@ ver_entorno:-
 ver_objeto(X):-
       pos_obj(Y,X),
       write('Hay un '),write(Y), write( ' por aqui.'),nl,
-      fail.
-      
+      fail,!.
+
 ver_objeto(_):- write('No hay ningun objeto interesante en esta vecinidad'),nl.
 
+end_game :-
+        nivel_vida(guerrero,0),
+        pos_actual(X),
+        write('Has muerto en la '),write(X),nl,!.
+        
+comandos :-
+    nl,
+    write('Comandos disponibles:'),nl,
+    write('start_game --> comenzar'),nl,
+    write('comandos --> ver comandos del juego'),nl,
+    write('norte | sur | este | oeste --> para moverse'),nl,
+    write('atacar --> para atacar '),nl,
+    write('ver_entorno --> para mirar en tu alrededor'),nl,
+    write('huir --> para huir'),nl,
+    write('coger(X) --> para coger el objeto'),nl,
+    write('end_game --> para salir del juego'),nl.
+    
+start_game :-
+        comandos,nl,
+        ver_entorno.
+
 texto(entrada_cueva):-
-      write('Has llegado a una de las partes mas terorificas del mundo'),nl,
-      write('Puedes ir hacia atras para llegar de nuevo a las llanuras'),nl,
-      write('o hacia el norte para comenzar una aventura mas'),nl,
+      write('Has llegado a una de las partes mas terorificas del mundo,'),nl,
+      write('la entrada de la Cueva del Fuego.'),nl,
+      write('Puedes ir hacia atras para llegar de nuevo a la casa abandonada'),nl,
+      write('o hacia el norte para comenzar una aventura mas dentro de la cueva'),nl,
       write('hacia el este es el pueblo y hacia el oeste las'),nl,
       write('montañas legendarias.Elige tu camino'),nl.
       
@@ -285,7 +302,16 @@ texto(palacio):-
       
 texto(camara_del_tesoro):-
       write('Has encontrado la camara del tesoro!.Delante ves el cofre legendario del Rey David'),nl,
-      write('El Magnifico.No parece que haya otros caminos a otras habitaciones.'),nl.
+      write('El Magnifico.No parece que haya otros caminos a otras habitaciones.'),nl,
+      pos_obj(llave,guerrero),
+      pos_obj(anillo_legendario,cofre),
+      write('Has obtenido el anillo legendario del Rey David !'),nl.
+
+texto(camara_del_tesoro):-
+      write('Has encontrado la camara del tesoro!.Delante ves el cofre legendario del Rey David'),nl,
+      write('El Magnifico.No parece que haya otros caminos a otras habitaciones.'),nl,
+      pos_obj(llave,X), X \= 'guerrero',
+      write('No tienes la llave para abrir el cofre'),nl.
       
 texto(rio_sin_fin):-
       write('Has llegado al rio.Parece muy profundo.Puedes intentar cruzarlo nadando aunque'),nl,
