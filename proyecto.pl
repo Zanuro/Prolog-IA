@@ -1,8 +1,10 @@
 
 
-:- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/2, defensa/2.
+:- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/2, defensa/2, num_obj/1.
 :- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)).
 
+% puedes coger objetos sin matar a los monstruos. arreglar.
+% swap armas para tener una sola arma en un momento dado.
 
 score(old_value,new_value).
 score(0,0).
@@ -13,6 +15,8 @@ nivel_vida(troll,100).
 nivel_vida(espiritu,100).
 alive(troll).
 alive(espiritu).
+num_obj(1).
+inventario(X,4).
 
 ataque(guerrero,100).
 defensa(guerrero,100).
@@ -25,6 +29,8 @@ pos_obj(espada,monte_pico).
 pos_obj(espiritu,casa_abandonada).
 pos_obj(pocion_vida,pueblo).
 pos_obj(cuchillo_peq,guerrero).
+pos_obj(hacha,casa_abandonada).
+pos_obj(antorcha,molino_viento).
 %el hacha es dropeado por el espiritu de la casa abandonada.
 
 camino(entrada_cueva,norte,cueva):- pos_obj(antorcha,guerrero).
@@ -34,9 +40,9 @@ camino(entrada_cueva,norte,cueva):-
 camino(entrada_cueva,este,montanas_legendarias).
 camino(entrada_cueva,oeste,pueblo).
 camino(entrada_cueva,sur,casa_abandonada).
-camino(casa_abandonada,oeste,monte_olimpo).
+camino(casa_abandonada,este,monte_olimpo).
 camino(casa_abandonada,sur,arbol_de_la_vida).
-camino(casa_abandonada,este,molino_viento).
+camino(casa_abandonada,oeste,molino_viento).
 camino(casa_abandonada,norte,entrada_cueva).
 camino(molino_viento,norte,pueblo).
 camino(molino_viento,este,casa_abandonada).
@@ -54,16 +60,32 @@ camino(montanas_legendarias,este,entrada_palacio).
 camino(montanas_legendarias,oeste,entrada_cueva).
 
 camino(entrada_palacio,norte,palacio).
+camino(entrada_palacio,oeste,montanas_legendarias).
+camino(entrada_palacio,sur,rio_sin_fin).
 camino(palacio,este,camara_del_tesoro).
 camino(camara_del_tesoro,norte,cofre):- pos_obj(llave,guerrero).
 camino(camara_del_tesoro,norte,cofre):- write('El cofre esta cerrado'),nl,fail.
 
 coger(X):-
+     retract(num_obj(F)),
+     A is F,
+     inventario(A,4),
+     A < 4,
      pos_actual(Y),
      pos_obj(X,Y),
-     assert(pos_obj(X,guerrero)),
      retract(pos_obj(X,Y)),
-     write('Has cogido el '),write(X),nl,!.
+     assert(pos_obj(X,guerrero)),
+     write('Has cogido '),write(X),nl,
+     G is F+1,assert(num_obj(G)),
+     G < 4,
+     H is 4-G,
+     write('Te quedan '),write(H),write(' espacios'),write(' en el inventario.'),nl,!;
+     retract(num_obj(F)),A is F,
+     inventario(A,4),
+     A=4,
+     assert(num_obj(F)),
+     write('El inventario esta lleno'),nl,
+     write('Dropea algo!'),nl,!.
 
  coger(_):-
      write('No hay nada que coger!'),nl.
@@ -71,10 +93,7 @@ coger(X):-
 drops(X,Y):-
       pos_obj(Y,Z),
       pos_actual(Z),
-      assert(pos_obj(Y,guerrero)),
-      retract(pos_obj(Y,Z)),
-      write(X),write(' ha dropeado '),write(Y),nl,
-      write('Decides coger: '),write(Y),nl,!.
+      write(X),write(' ha dropeado '),write(Y),nl,!.
 
  drops(_):-
       write('No ha dropeado nada'),nl.
@@ -83,10 +102,20 @@ atacar :-
         pos_actual(cueva),
         pos_obj(cuchillo_peq,guerrero),
         alive(troll),
-        ataque1(guerrero,X),
-        nivel_vida1(guerrero,X),
-        defensa1(guerrero,X),
-        vida_troll1(troll,X),
+        retract(ataque(guerrero,X)),
+        Z is X-20,
+        assert(ataque(guerrero,Z)),
+        retract(defensa(guerrero,X)),
+        Y is X-20,
+        assert(defensa(guerrero,Y)),
+        retract(nivel_vida(guerrero,X)),
+        H is X-20,
+        assert(nivel_vida(guerrero,H)),
+        retract(nivel_vida(troll,X)),
+        W is X-40,
+        assert(nivel_vida(troll,W)),
+        retract(alive(troll)),
+        retract(pos_obj(troll,cueva)),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
@@ -96,19 +125,24 @@ atacar :-
         write('-20 DEF -20 VIDA'),
         ver_objeto(cueva),nl,!.
 
-ataque1(guerrero,X):- Y is X-20,ataque(guerrero,Y).
-nivel_vida1(guerrero,X):- Y is X-20,nivel_vida(guerrero,Y).
-defensa1(guerrero,X):- Y is X-20,defensa(guerrero,Y).
-vida_troll1(troll,X):- Y is X-40,nivel_vida(troll,Y).
-
 atacar :-
         pos_actual(cueva),
         pos_obj(hacha,guerrero),
         alive(troll),
-        ataque2(guerrero,X),
-        nivel_vida2(guerrero,X),
-        defensa2(guerrero,X),
-        vida_troll2(troll,X),
+        retract(ataque(guerrero,X)),
+        Z is X-30,
+        assert(ataque(guerrero,Z)),
+        retract(defensa(guerrero,X)),
+        Y is X-10,
+        assert(defensa(guerrero,Y)),
+        retract(nivel_vida(guerrero,X)),
+        H is X-10,
+        assert(nivel_vida(guerrero,H)),
+        retract(nivel_vida(troll,X)),
+        W is X-70,
+        assert(nivel_vida(troll,W)),
+        retract(alive(troll)),
+        retract(pos_obj(troll,cueva)),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
@@ -118,19 +152,24 @@ atacar :-
         write('-10 DEF -10 VIDA'),
         ver_objeto(cueva),nl,!.
 
-ataque2(guerrero,X):- Y is X-30,ataque(guerrero,Y).
-nivel_vida2(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
-defensa2(guerrero,X):- Y is X-10,defensa(guerrero,Y).
-vida_troll2(troll,X):- Y is X-70,nivel_vida(troll,Y).
-
 atacar :-
         pos_actual(cueva),
         pos_obj(espada,guerrero),
         alive(troll),
-        ataque3(guerrero,X),
-        nivel_vida3(guerrero,X),
-        defensa3(guerrero,X),
-        vida_troll3(troll,X),
+        retract(ataque(guerrero,X)),
+        Z is X+50,
+        assert(ataque(guerrero,Z)),
+        retract(defensa(guerrero,X)),
+        Y is X-5,
+        assert(defensa(guerrero,Y)),
+        retract(nivel_vida(guerrero,X)),
+        H is X-10,
+        assert(nivel_vida(guerrero,H)),
+        retract(nivel_vida(troll,X)),
+        W is X-100,
+        assert(nivel_vida(troll,W)),
+        retract(alive(troll)),
+        retract(pos_obj(troll,cueva)),
         write('Has logrado matar al legendario troll.'),nl,
         write('Ha logrado quitarte un poco de vida pero'),nl,
         write('te has vuelto mas fuerte!'),nl,
@@ -138,42 +177,52 @@ atacar :-
         write('Tu defensa y tu nivel de vida ha bajado!'),
         write('-5 DEF -10 VIDA'),
         ver_objeto(cueva),nl,!.
-
-ataque3(guerrero,X):- Y is X+50,ataque(guerrero,Y).
-nivel_vida3(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
-defensa3(guerrero,X):- Y is X-5,defensa(guerrero,Y).
-vida_troll3(troll,X):- nivel_vida(troll,0).
-
+        
 atacar :-
         pos_actual(casa_abandonada),
         pos_obj(cuchillo_peq,guerrero),
-        ataque4(guerrero,30),
-        nivel_vida4(guerrero,-20),
-        defensa4(guerrero,-10),
-        vida_espiritu(espiritu,-100),
+        alive(espiritu),
+        retract(ataque(guerrero,X)),
+        Z is X+30,
+        assert(ataque(guerrero,Z)),
+        retract(defensa(guerrero,X)),
+        Y is X-10,
+        assert(defensa(guerrero,Y)),
+        retract(nivel_vida(guerrero,X)),
+        H is X-20,
+        assert(nivel_vida(guerrero,H)),
+        retract(nivel_vida(espiritu,X)),
+        W is X-100,
+        assert(nivel_vida(espiritu,W)),
         retract(alive(espiritu)),
+        retract(pos_obj(espiritu,casa_abandonada)),
         write('Lograste matar al espiritu malvado de la casa'),nl,
         write('Conseguiste una mejora en tu ataque: +30 Ataque'),nl,
         write('El espiritu ha logrado quitarte un poco de vida y'),nl,
         write('tu defensa ha bajado.'),nl,
-        write('-10 DEF -20 VIDA'),nl,
+        write('-10 DEF -20 VIDA'),nl,nl,
         write('El espiritu tambien ha dropeado algo:.....'),nl,
-        drops(espiritu,hacha),
+        drops(espiritu,hacha),nl,
         ver_objeto(casa_abandonada),nl,!.
-
-ataque4(guerrero,30):- ataque(guerrero,X),Z is X+30, ataque(guerrero,Z).
-nivel_vida4(guerrero,-20):- nivel_vida(guerrero,X),Z is X-20, nivel_vida(guerrero,Z).
-defensa4(guerrero,-10):- defensa(guerrero,X),Z is X-10, defensa(guerrero,Z).
-vida_espiritu(espiritu,-100):- nivel_vida(espiritu,X),Z is X-100, nivel_vida(espiritu,Z).
 
 atacar :-
         pos_actual(casa_abandonada),
         pos_obj(espada,guerrero),
+        alive(espiritu),
+        retract(ataque(guerrero,X)),
+        Z is X+50,
+        assert(ataque(guerrero,Z)),
+        retract(defensa(guerrero,X)),
+        Y is X-5,
+        assert(defensa(guerrero,Y)),
+        retract(nivel_vida(guerrero,X)),
+        H is X-10,
+        assert(nivel_vida(guerrero,H)),
+        retract(nivel_vida(espiritu,X)),
+        W is X-100,
+        assert(nivel_vida(espiritu,W)),
         retract(alive(espiritu)),
-        ataque5(guerrero,X),
-        nivel_vida5(guerrero,X),
-        defensa5(guerrero,X),
-        vida_espiritu(espiritu,X),
+        retract(pos_obj(espiritu,casa_abandonada)),
         write('Lograste matar al espiritu malvado de la casa'),nl,
         write('Conseguiste una mejora en tu ataque: +50 Ataque'),nl,
         write('El espiritu ha logrado quitarte un poco de vida y'),nl,
@@ -182,42 +231,42 @@ atacar :-
         write('El espiritu tambien ha dropeado algo:.....'),nl,
         drops(espiritu,hacha),
         ver_objeto(casa_abandonada),nl,!.
-
-ataque5(guerrero,X):- Y is X+50,ataque(guerrero,Y).
-nivel_vida5(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
-defensa5(guerrero,X):- Y is X-5,defensa(guerrero,Y).
-
+        
 huir :-
         pos_actual(cueva),
         alive(troll),
-        ataque6(guerrero,X),
-        defensa6(guerrero,X),
-        nivel_vida6(guerrero,X),
+        retract(ataque(guerrero,X)),
+        Z is X-20,
+        assert(ataque(guerrero,Z)),
+        retract(defensa(guerrero,X)),
+        Y is X-10,
+        assert(defensa(guerrero,Y)),
+        retract(nivel_vida(guerrero,X)),
+        H is X-15,
+        assert(nivel_vida(guerrero,H)),
         write('Intentas huir del troll'),nl,
         write('Sin embargo al intentar huir se ha disminuido tu ataque,defensa y vida..'),nl,
         write('Perdiste 20 puntos de ataque'),nl,
         write('Perdiste 10 puntos de defensa'),nl,
         write('Perdiste 15 puntos de vida'),nl,!.
         
-ataque6(guerrero,X):- Y is X-20,ataque(guerrero,Y).
-nivel_vida6(guerrero,X):- Y is X-15,nivel_vida(guerrero,Y).
-defensa6(guerrero,X):- Y is X-10,defensa(guerrero,Y).
-        
 huir :-
         pos_actual(casa_abandonada),
         alive(espiritu),
-        ataque7(guerrero,X),
-        defensa7(guerrero,X),
-        nivel_vida7(guerrero,X),
+        retract(ataque(guerrero,X)),
+        Z is X-10,
+        assert(ataque(guerrero,Z)),
+        retract(defensa(guerrero,X)),
+        Y is X-5,
+        assert(defensa(guerrero,Y)),
+        retract(nivel_vida(guerrero,X)),
+        H is X-10,
+        assert(nivel_vida(guerrero,H)),
         write('Intentas huir del espiritu'),nl,
         write('Sin embargo al intentar huir se ha disminuido tu ataque,defensa y vida..'),nl,
         write('Perdiste 10 puntos de ataque'),nl,
         write('Perdiste 5 puntos de defensa'),nl,
         write('Perdiste 10 puntos de vida'),nl,!.
-
-ataque7(guerrero,X):- Y is X-10,ataque(guerrero,Y).
-nivel_vida7(guerrero,X):- Y is X-10,nivel_vida(guerrero,Y).
-defensa7(guerrero,X):- Y is X-5,defensa(guerrero,Y).
 
 atacar :-
        write('No hay ningun enemigo alrededor para atacar'),nl.
@@ -225,6 +274,37 @@ atacar :-
 huir :-
      write('No hay ningun enemigo del que huir'),nl.
      
+pocion :-
+     pos_obj(pocion_vida,guerrero),
+     write('Se ha utilizado la pocion de vida'),nl,
+     retract(nivel_vida(guerrero,X)),
+     Y is X+50,
+     assert(nivel_vida(guerrero,Y)),nl,!.
+
+pocion :-
+       write('No lleva encima una pocion de vida'),nl.
+
+atq :-
+    ataque(guerrero,X),
+    write('Su nivel de ataque es: '),write(X),nl.
+    
+def :-
+    defensa(guerrero,X),
+    write('Su nivel de defensa es: '),write(X),nl.
+
+vida :-
+    nivel_vida(guerrero,X),
+    write('Su nivel de vida es: '),write(X),nl.
+    
+swap_armas :-
+     pos_obj(cuchillo_peq,guerrero),coger(hacha);coger(espada),
+     retract(pos_obj(cuchillo_peq,guerrero)),
+     assert(pos_obj(hacha,guerrero));assert(pos_obj(espada,guerrero)),!.
+
+inv :-
+     write('Tienes en el inventario: '),nl,
+     pos_obj(X,guerrero),
+     write(X),nl.
 
 norte :- move(norte).
 sur :- move(sur).
@@ -266,10 +346,18 @@ comandos :-
     write('atacar --> para atacar '),nl,
     write('ver_entorno --> para mirar en tu alrededor'),nl,
     write('huir --> para huir'),nl,
+    write('atq --> para ver nivel de ataque'),nl,
+    write('def --> para ver nivel de defensa'),nl,
+    write('vida --> para ver nivel de vida'),nl,
     write('coger(X) --> para coger el objeto'),nl,
+    write('pocion --> para utilizar pocion vida'),nl,
+    write('inv --> ver inventario'),nl,
     write('end_game --> para salir del juego'),nl.
     
 start_game :-
+        retract(num_obj(F)),G is F,
+        inventario(G,4),nl,
+        assert(num_obj(F)),
         comandos,nl,
         ver_entorno.
 
@@ -301,16 +389,19 @@ texto(palacio):-
       write('explorar pero ande con cuidado porque los peligros estan a todo paso.'),nl.
       
 texto(camara_del_tesoro):-
+      pos_obj(llave,guerrero),
       write('Has encontrado la camara del tesoro!.Delante ves el cofre legendario del Rey David'),nl,
       write('El Magnifico.No parece que haya otros caminos a otras habitaciones.'),nl,
-      pos_obj(llave,guerrero),
-      pos_obj(anillo_legendario,cofre),
+      pos_obj(anillo_legendario,cofre),nl,
+      retract(pos_obj(llave,guerrero)),
+      retract(pos_obj(anillo_legendario,cofre)),
+      retract(pos_obj(cofre,camara_del_tesoro)),
       write('Has obtenido el anillo legendario del Rey David !'),nl.
 
 texto(camara_del_tesoro):-
       write('Has encontrado la camara del tesoro!.Delante ves el cofre legendario del Rey David'),nl,
-      write('El Magnifico.No parece que haya otros caminos a otras habitaciones.'),nl,
-      pos_obj(llave,X), X \= 'guerrero',
+      write('El Magnifico.No parece que haya otros caminos a otras habitaciones.'),nl,nl,
+      pos_obj(llave,X), X \= guerrero,
       write('No tienes la llave para abrir el cofre'),nl.
       
 texto(rio_sin_fin):-
