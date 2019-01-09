@@ -1,7 +1,7 @@
 
 
 :- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/2, defensa/2, num_obj/1.
-:- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)), retractall(ataque(_,_)), retractall(defensa(_,_)).
+:- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)), retractall(ataque(_,_)), retractall(defensa(_,_)), retractall(num_obj(_)).
 
 % puedes coger objetos sin matar a los monstruos. arreglar.
 % swap armas para tener una sola arma en un momento dado.
@@ -447,7 +447,7 @@ texto(entrada_cueva):-
       write('Puedes ir hacia atras para llegar de nuevo a la casa abandonada'),nl,
       write('o hacia el norte para comenzar una aventura mas dentro de la cueva'),nl,
       write('hacia el este es el pueblo y hacia el oeste las'),nl,
-      write('montañas legendarias.Elige tu camino'),nl.
+      write('montaÃ±as legendarias.Elige tu camino'),nl.
       
 texto(cueva):-
       write('Bien.Eres una persona valiente.Delante te esperaran muchos'),nl,
@@ -460,7 +460,7 @@ texto(entrada_palacio):-
       write('no prestar atencion a su entorno.La historia cuenta de que aqui se encuentra'),nl,
       write('un tesoro unico en todo el reino.Si decides seguir el camino hacia delante'),nl,
       write('podras explorar este impresionante edificio.Si no puedes volver hacia atras'),nl,
-      write('Hacia el oeste se ven las montañas legendarias y hacia el este el bosque'),nl,
+      write('Hacia el oeste se ven las montaÃ±as legendarias y hacia el este el bosque'),nl,
       write('de la oscuridad.Elige tu camino.'),nl.
       
 texto(palacio):-
@@ -497,7 +497,7 @@ texto(monte_olimpo):-
       write('es mas llanura.'),nl.
       
 texto(arbol_de_la_vida):-
-      write('Este es punto de inicio de tu aventura.Este magnifico arbol lleva aqui 300 años creciendo'),nl,
+      write('Este es punto de inicio de tu aventura.Este magnifico arbol lleva aqui 300 aÃ±os creciendo'),nl,
       write(',hacia el norte se puede ver la casa abandonada que no parece habitada.Este es el unico camino'),nl,
       write('que se puede coger.'),nl.
 
@@ -517,13 +517,13 @@ texto(molino_viento):-
      write('al norte.Puedes ir de nuevo hacia el este para llegar a la casa abandonada.No hay otros caminos posibles'),nl.
 
 texto(montanas_legendarias):-
-     write('Has logrado llegar a la base de estas montañas legendarias.Estas estan justo entre la cueva y el palacio.'),nl,
+     write('Has logrado llegar a la base de estas montaÃ±as legendarias.Estas estan justo entre la cueva y el palacio.'),nl,
      write('puedes seguir adelante para explorarlos.Hay un camino hacia el este que te lleva al palacio y uno hacia el oeste'),nl,
      write('que te lleva a la cueva.'),nl.
 
 texto(monte_pico):-
-     write('Has llegado al pico de la montaña despues de un largo camino.De aqui puedes ver todo a tu alrededor.Puedes volver'),nl,
-     write('hacia atras para llegar a la base de la montaña.Otros caminos no son posibles'),nl.
+     write('Has llegado al pico de la montaÃ±a despues de un largo camino.De aqui puedes ver todo a tu alrededor.Puedes volver'),nl,
+     write('hacia atras para llegar a la base de la montaÃ±a.Otros caminos no son posibles'),nl.
 
 
 
