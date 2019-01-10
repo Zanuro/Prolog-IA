@@ -187,6 +187,7 @@ drops(X,Y):-
       
 atacar :-
         pos_actual(cueva),
+        pos_obj(troll,cueva),
         pos_obj(cuchillo_peq,guerrero),
         alive(troll),
         retract(ataque(guerrero,X)),
@@ -212,6 +213,7 @@ atacar :-
 
 atacar :-
         pos_actual(cueva),
+        pos_obj(troll,cueva),
         pos_obj(hacha,guerrero),
         alive(troll),
         retract(ataque(guerrero,X)),
@@ -236,6 +238,7 @@ atacar :-
         ver_objeto(cueva),nl,!.
 atacar :-
         pos_actual(cueva),
+        pos_obj(troll,cueva),
         pos_obj(espada,guerrero),
         alive(troll),
         retract(ataque(guerrero,X)),
@@ -262,6 +265,7 @@ atacar :-
         
 atacar :-
         pos_actual(casa_abandonada),
+        pos_obj(espiritu,casa_abandonada),
         pos_obj(cuchillo_peq,guerrero),
         alive(espiritu),
         retract(ataque(guerrero,X)),
@@ -289,6 +293,7 @@ atacar :-
 
 atacar :-
         pos_actual(casa_abandonada),
+        pos_obj(espiritu,casa_abandonada),
         pos_obj(espada,guerrero),
         alive(espiritu),
         retract(ataque(guerrero,X)),
