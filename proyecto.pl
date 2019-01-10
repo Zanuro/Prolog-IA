@@ -321,6 +321,7 @@ atacar :-
         
 huir :-
         pos_actual(cueva),
+        pos_obj(troll,cueva),
         alive(troll),
         retract(ataque(guerrero,X)),
         Z is X-20,
@@ -339,6 +340,7 @@ huir :-
         
 huir :-
         pos_actual(casa_abandonada),
+        pos_obj(espiritu,casa_abandonada),
         alive(espiritu),
         retract(ataque(guerrero,X)),
         Z is X-10,
