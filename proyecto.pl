@@ -411,7 +411,7 @@ ver_objeto(X):-
 ver_objeto(_):- write('No hay ningun objeto interesante en esta vecinidad'),nl.
 
 end_game :-
-
+        retract(nivel_vida(guerrero,X)),
         assert(nivel_vida(guerrero,0)),
         pos_actual(X),
         write('Has muerto en '),write(X),nl,!.
