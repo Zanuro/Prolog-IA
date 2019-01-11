@@ -484,7 +484,7 @@ texto(camara_del_tesoro):-
       retract(pos_obj(anillo_legendario,cofre)),
       retract(pos_obj(cofre,camara_del_tesoro)),
       write('Has obtenido el anillo legendario del Rey David !'),nl.
-
+ 
 texto(camara_del_tesoro):-
       write('Has encontrado la camara del tesoro!.Delante ves el cofre legendario del Rey David'),nl,
       write('El Magnifico.No parece que haya otros caminos a otras habitaciones.'),nl,nl,
