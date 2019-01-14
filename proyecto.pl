@@ -1,4 +1,4 @@
-
+﻿
 
 :- dynamic pos_obj/2, pos_actual/1, alive/1, nivel_vida/2, ataque/2, defensa/2, num_obj/1.
 :- retractall(pos_obj(_, _)), retractall(pos_actual(_)), retractall(alive(_)), retractall(ataque(_,_)), retractall(defensa(_,_)), retractall(num_obj(_)).
@@ -6,8 +6,7 @@
 % puedes coger objetos sin matar a los monstruos. arreglar.
 % swap armas para tener una sola arma en un momento dado.
 
-score(old_value,new_value).
-score(0,0).
+score(old_value,0).
 
 pos_actual(arbol_de_la_vida).
 nivel_vida(guerrero,100).
@@ -202,6 +201,9 @@ atacar :-
         retract(nivel_vida(troll,X)),
         W is X-40,
         assert(nivel_vida(troll,W)),
+        retract(score(old_score,X)),
+        U is X+100,
+        assert(score(old_score,U)),
         write('Intentas matarlo pero necesitarias un arma'),nl,
         write('mas potente.Sin embargo le has quitado vida'),nl,
         write('y te has vuelto mas fuerte!'),nl,
